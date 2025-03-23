@@ -1,7 +1,14 @@
-const Header = ({ loggedIn }) => {
-  const sign = loggedIn
-    ? `<li><a href="#" class="text-gray-600">로그아웃</a></li>`
-    : `<li><a href="#" class="text-gray-600">로그인</a></li>`;
+const state = { loggedIn: false };
+
+const Header = () => {
+  const sign = state.loggedIn
+    ? `<li><a href="/" class="text-gray-600">로그아웃</a></li>`
+    : `<li><a href="/login" class="text-gray-600">로그인</a></li>`;
+
+  const pathname = location.pathname;
+  const isActive = (currentPath, targetPath) => {
+    return currentPath === targetPath ? "text-blue-600" : "text-gray-600";
+  };
 
   return `
     <header class="bg-blue-600 text-white p-4 sticky top-0">
@@ -10,8 +17,8 @@ const Header = ({ loggedIn }) => {
    
     <nav class="bg-white shadow-md p-2 sticky top-14">
       <ul class="flex justify-around">
-        <li><a href="/" class="text-blue-600">홈</a></li>
-        <li><a href="/profile" class="text-gray-600">프로필</a></li>
+        <li><a href="/" class="${isActive(pathname, "/")}">홈</a></li>
+        <li><a href="/profile" class="${isActive(pathname, "/profile")}">프로필</a></li>
         ${sign}
       </ul>
     </nav>`;
@@ -26,7 +33,7 @@ const Footer = () => `
 const HomePage = () => `
   <div class="bg-gray-100 min-h-screen flex justify-center">
     <div class="max-w-md w-full">
-      ${Header(false)}
+      ${Header()}
 
       <main class="p-4">
         <div class="mb-4 bg-white rounded-lg shadow p-4">
@@ -167,7 +174,7 @@ const ProfilePage = () => `
   <div id="root">
     <div class="bg-gray-100 min-h-screen flex justify-center">
       <div class="max-w-md w-full">
-        ${Header(false)}
+        ${Header()}
 
         <main class="p-4">
           <div class="bg-white p-8 rounded-lg shadow-md">
@@ -234,9 +241,59 @@ const ProfilePage = () => `
   </div>
 `;
 
-document.body.innerHTML = `
-  ${HomePage()}
-  ${ProfilePage()}
-  ${LoginPage()}
-  ${NotFountPage()}
-`;
+const Router = (function () {
+  const routes = {};
+
+  function addRoute(path, handler) {
+    routes[path] = handler;
+  }
+
+  function navigate(path) {
+    if (!state.loggedIn && path === "/profile") {
+      return navigate("/login");
+    }
+
+    const handler = routes[path] || routes["/404"];
+    handler();
+  }
+
+  function onLinkClick(e) {
+    const target = e.target.closest("a");
+    if (!target || target.origin !== location.origin) return;
+
+    e.preventDefault();
+    const newPath = target.pathname;
+    history.pushState(null, "", newPath);
+    navigate(newPath);
+  }
+
+  function init() {
+    document.addEventListener("click", onLinkClick);
+
+    window.addEventListener("popstate", () => {
+      navigate(location.pathname);
+    });
+
+    navigate(location.pathname);
+  }
+
+  return {
+    addRoute,
+    init,
+  };
+})();
+
+Router.addRoute("/", () => {
+  document.body.innerHTML = HomePage();
+});
+Router.addRoute("/profile", () => {
+  document.body.innerHTML = ProfilePage();
+});
+Router.addRoute("/login", () => {
+  document.body.innerHTML = LoginPage();
+});
+Router.addRoute("/404", () => {
+  document.body.innerHTML = NotFountPage();
+});
+
+Router.init();
