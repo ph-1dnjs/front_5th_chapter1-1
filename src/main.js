@@ -1,7 +1,7 @@
 import User from "./user.js";
 
 const Header = () => {
-  const isLogin = User.isLogin();
+  const isLogin = User.isLoggedIn();
   const sign = isLogin
     ? `<li><a id="logout" href="/login" class="text-gray-600">로그아웃</a></li>`
     : `<li><a href="/login" class="text-gray-600">로그인</a></li>`;
@@ -178,7 +178,7 @@ const LoginPage = () => `
 `;
 
 const ProfilePage = () => {
-  const user = User.getUserLocalStorage();
+  const user = User.getUserFromLocalStorage();
   return `
   <div id="root">
     <div class="bg-gray-100 min-h-screen flex justify-center">
@@ -257,10 +257,10 @@ const Router = (function () {
   }
 
   function navigate(path) {
-    if (!User.isLogin() && path === "/profile") {
+    if (!User.isLoggedIn() && path === "/profile") {
       return navigate("/login");
     }
-    if (User.isLogin() && path === "/login") {
+    if (User.isLoggedIn() && path === "/login") {
       return navigate("/");
     }
 
@@ -275,7 +275,7 @@ const Router = (function () {
     e.preventDefault();
 
     if (target.id === "logout") {
-      User.removeUserLocalStorage();
+      User.removeUserFromLocalStorage();
       history.pushState(null, "", "/login");
       navigate("/login");
       return; // 나머지 이벤트 처리 중단
@@ -290,7 +290,14 @@ const Router = (function () {
     document.addEventListener("click", onLinkClick);
 
     window.addEventListener("popstate", () => {
-      navigate(location.pathname);
+      const path = location.pathname;
+
+      if (path === "/login" && User.isLoggedIn()) {
+        history.go(1);
+        return;
+      }
+
+      navigate(path);
     });
 
     navigate(location.pathname);
@@ -314,11 +321,10 @@ Router.addRoute("/login", () => {
   document.querySelector("form").addEventListener("submit", function (e) {
     e.preventDefault();
 
-    const inputValues = [...document.querySelectorAll("input")].map(
-      (input) => input.value,
-    );
+    const username = document.getElementById("username").value;
 
-    new User(inputValues[0]);
+    User.createUser(username);
+    // TODO: 프로필 페이지 이동 후 path가 변경되지 않는 문제
     Router.navigate("/profile");
   });
 });

@@ -1,38 +1,41 @@
-const key = "user";
+const STORAGE_KEY = "user";
 
-class User {
-  constructor(username, email, bio) {
-    this.username = username;
-    this.email = email ?? "";
-    this.bio = bio ?? "";
+const saveToLocalStorage = (user) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+};
 
-    this.saveToLocalStorage();
-  }
+const getUserFromLocalStorage = () => {
+  const storedData = localStorage.getItem(STORAGE_KEY);
+  return storedData ? JSON.parse(storedData) : null;
+};
 
-  setState() {}
+const removeUserFromLocalStorage = () => {
+  localStorage.removeItem(STORAGE_KEY);
+};
 
-  saveToLocalStorage() {
-    const userData = {
-      username: this.username,
-      email: this.email,
-      bio: this.bio,
-    };
+const createUser = (username, email = "", bio = "") => {
+  const user = { username, email, bio };
+  saveToLocalStorage(user);
+  return user;
+};
 
-    localStorage.setItem(key, JSON.stringify(userData));
-    console.log("저장: save");
-  }
+const updateUser = (updates) => {
+  const user = getUserFromLocalStorage();
+  if (!user) return null;
 
-  static getUserLocalStorage() {
-    return JSON.parse(localStorage.getItem(key));
-  }
+  const updatedUser = { ...user, ...updates };
+  saveToLocalStorage(updatedUser);
+  return updatedUser;
+};
 
-  static removeUserLocalStorage() {
-    localStorage.removeItem(key);
-  }
+const isLoggedIn = () => {
+  return !!getUserFromLocalStorage();
+};
 
-  static isLogin() {
-    return !!User.getUserLocalStorage();
-  }
-}
-
-export default User;
+export default {
+  createUser,
+  updateUser,
+  getUserFromLocalStorage,
+  removeUserFromLocalStorage,
+  isLoggedIn,
+};
