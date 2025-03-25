@@ -311,17 +311,12 @@ Router.addRoute("/profile", () => {
 });
 Router.addRoute("/login", () => {
   document.body.innerHTML = LoginPage();
-  document.getElementById("login-btn").addEventListener("click", function (e) {
+  document.querySelector("form").addEventListener("submit", function (e) {
     e.preventDefault();
 
     const inputValues = [...document.querySelectorAll("input")].map(
       (input) => input.value,
     );
-
-    if (!inputValues[0] || !inputValues[1]) {
-      alert("빈 칸 없이 입력해주세요.");
-      return;
-    }
 
     new User(inputValues[0]);
     Router.navigate("/profile");
