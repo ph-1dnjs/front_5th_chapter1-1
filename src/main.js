@@ -6,7 +6,7 @@ const Header = () => {
     ? `<li><a id="logout" href="/login" class="text-gray-600">로그아웃</a></li>`
     : `<li><a href="/login" class="text-gray-600">로그인</a></li>`;
 
-  const pathname = location.hash.replace("#", "");
+  const pathname = location.hash.replace("#", "") || "/";
   const isActive = (currentPath, targetPath) => {
     return currentPath === targetPath ? "text-blue-600" : "text-gray-600";
   };
@@ -258,20 +258,21 @@ const Router = (function () {
   const routes = {};
 
   function addRoute(path, handler) {
-    routes[`#${path}`] = handler;
+    routes[path] = handler;
   }
 
   function navigator() {
-    let path = window.location.hash || `#${window.location.pathname}`;
+    let path =
+      window.location.hash.replace("#", "") || window.location.pathname;
 
-    if (!User.isLoggedIn() && path === "#/profile") {
-      path = "#/login";
+    if (!User.isLoggedIn() && path === "/profile") {
+      path = "/login";
     }
-    if (User.isLoggedIn() && path === "#/login") {
-      path = "#/";
+    if (User.isLoggedIn() && path === "/login") {
+      path = "/";
     }
 
-    const handler = routes[path] || routes["#/404"];
+    const handler = routes[path] || routes["/404"];
     handler();
   }
 
@@ -281,14 +282,14 @@ const Router = (function () {
     window.addEventListener("load", navigator);
 
     window.addEventListener("popstate", () => {
-      const path = location.hash;
+      const path = location.hash.replace("#", "");
 
-      if (path === "#/login" && User.isLoggedIn()) {
+      if (path === "/login" && User.isLoggedIn()) {
         history.go(1);
         return;
       }
 
-      const handler = routes[path] || routes["#/404"];
+      const handler = routes[path] || routes["/404"];
       handler();
     });
 
@@ -297,14 +298,15 @@ const Router = (function () {
 
       if (href) {
         e.preventDefault();
+        history.pushState(null, "", `#${href}`);
 
         if (e.target.id === "logout") {
           User.removeUserFromLocalStorage();
-          routes["#/login"]();
+          routes["/login"]();
           return;
         }
 
-        const handler = routes[`#${href}`] || routes["#/404"];
+        const handler = routes[href] || routes["/404"];
         handler();
       }
     });
@@ -315,8 +317,8 @@ const Router = (function () {
         const username = document.getElementById("username").value;
 
         User.createUser(username);
-        // TODO: 프로필 페이지 이동 후 path가 변경되지 않는 문제
-        routes["#/profile"]();
+        history.pushState(null, "", `#/profile`);
+        routes["/profile"]();
       } else if (e.target.id === "profile-form") {
         const username = document.getElementById("username").value;
         const email = document.getElementById("email").value;
@@ -327,7 +329,7 @@ const Router = (function () {
       }
     });
 
-    const handler = routes[location.hash] || routes["#/404"];
+    const handler = routes[location.pathname] || routes["/404"];
     handler();
   }
 
