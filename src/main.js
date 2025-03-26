@@ -6,7 +6,7 @@ const Header = () => {
     ? `<li><a id="logout" href="/login" class="text-gray-600">로그아웃</a></li>`
     : `<li><a href="/login" class="text-gray-600">로그인</a></li>`;
 
-  const pathname = location.pathname;
+  const pathname = location.hash.replace("#", "");
   const isActive = (currentPath, targetPath) => {
     return currentPath === targetPath ? "text-blue-600" : "text-gray-600";
   };
@@ -31,6 +31,13 @@ const Footer = () => `
   </footer>
 `;
 
+const PostInput = () => `
+  <div class="mb-4 bg-white rounded-lg shadow p-4">
+    <textarea class="w-full p-2 border rounded" placeholder="무슨 생각을 하고 계신가요?"></textarea>
+    <button class="mt-2 bg-blue-600 text-white px-4 py-2 rounded">게시</button>
+  </div>
+`;
+
 const HomePage = () => `
   <div id="root">
     <div class="bg-gray-100 min-h-screen flex justify-center">
@@ -38,10 +45,7 @@ const HomePage = () => `
         ${Header()}
   
         <main class="p-4">
-          <div class="mb-4 bg-white rounded-lg shadow p-4">
-            <textarea class="w-full p-2 border rounded" placeholder="무슨 생각을 하고 계신가요?"></textarea>
-            <button class="mt-2 bg-blue-600 text-white px-4 py-2 rounded">게시</button>
-          </div>
+          ${User.isLoggedIn() ? PostInput() : ""}
   
           <div class="space-y-4">
   
@@ -230,7 +234,7 @@ const ProfilePage = () => {
                     name="bio"
                     rows="4"
                     class="w-full p-2 border rounded"
-                  >${user.bio}</textarea
+                  >${user.bio} 자기소개입니다.</textarea
                   >
                 </div>
                 <button
@@ -254,59 +258,81 @@ const Router = (function () {
   const routes = {};
 
   function addRoute(path, handler) {
-    routes[path] = handler;
+    routes[`#${path}`] = handler;
   }
 
-  function navigate(path) {
-    if (!User.isLoggedIn() && path === "/profile") {
-      return navigate("/login");
+  function navigator() {
+    let path = window.location.hash || `#${window.location.pathname}`;
+
+    if (!User.isLoggedIn() && path === "#/profile") {
+      path = "#/login";
     }
-    if (User.isLoggedIn() && path === "/login") {
-      return navigate("/");
+    if (User.isLoggedIn() && path === "#/login") {
+      path = "#/";
     }
 
-    const handler = routes[path] || routes["/404"];
+    const handler = routes[path] || routes["#/404"];
     handler();
   }
 
-  function onLinkClick(e) {
-    const target = e.target.closest("a");
-    if (!target || target.origin !== location.origin) return;
-
-    e.preventDefault();
-
-    if (target.id === "logout") {
-      User.removeUserFromLocalStorage();
-      history.pushState(null, "", "/login");
-      navigate("/login");
-      return; // 나머지 이벤트 처리 중단
-    }
-
-    const newPath = target.pathname;
-    history.pushState(null, "", newPath);
-    navigate(newPath);
-  }
-
   function init() {
-    document.addEventListener("click", onLinkClick);
+    window.addEventListener("hashchange", navigator);
+
+    window.addEventListener("load", navigator);
 
     window.addEventListener("popstate", () => {
-      const path = location.pathname;
+      const path = location.hash;
 
-      if (path === "/login" && User.isLoggedIn()) {
+      if (path === "#/login" && User.isLoggedIn()) {
         history.go(1);
         return;
       }
 
-      navigate(path);
+      const handler = routes[path] || routes["#/404"];
+      handler();
     });
 
-    navigate(location.pathname);
+    window.addEventListener("click", function (e) {
+      const href = e.target.getAttribute("href");
+
+      if (href) {
+        e.preventDefault();
+
+        if (e.target.id === "logout") {
+          User.removeUserFromLocalStorage();
+          routes["#/login"]();
+          return;
+        }
+
+        const handler = routes[`#${href}`] || routes["#/404"];
+        handler();
+      }
+    });
+
+    window.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (e.target.id === "login-form") {
+        const username = document.getElementById("username").value;
+
+        User.createUser(username);
+        // TODO: 프로필 페이지 이동 후 path가 변경되지 않는 문제
+        routes["#/profile"]();
+      } else if (e.target.id === "profile-form") {
+        const username = document.getElementById("username").value;
+        const email = document.getElementById("email").value;
+        const bio = document.getElementById("bio").value;
+
+        User.updateUser({ username, email, bio });
+        alert("프로필이 업데이트되었습니다.");
+      }
+    });
+
+    const handler = routes[location.hash] || routes["#/404"];
+    handler();
   }
 
   return {
     addRoute,
-    navigate,
     init,
   };
 })();
@@ -316,28 +342,9 @@ Router.addRoute("/", () => {
 });
 Router.addRoute("/profile", () => {
   document.body.innerHTML = ProfilePage();
-  document.querySelector("form").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const username = document.getElementById("username").value;
-    const email = document.getElementById("email").value;
-    const bio = document.getElementById("bio").value;
-
-    User.updateUser({ username, email, bio });
-    alert("프로필이 업데이트되었습니다.");
-  });
 });
 Router.addRoute("/login", () => {
   document.body.innerHTML = LoginPage();
-  document.querySelector("form").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const username = document.getElementById("username").value;
-
-    User.createUser(username);
-    // TODO: 프로필 페이지 이동 후 path가 변경되지 않는 문제
-    Router.navigate("/profile");
-  });
 });
 Router.addRoute("/404", () => {
   document.body.innerHTML = NotFountPage();
