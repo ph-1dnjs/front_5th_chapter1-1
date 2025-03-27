@@ -1,10 +1,20 @@
 import User from "../user.js";
 
+import { BASE_URL } from "../constants/constant.js";
+
 import Header from "../components/Header.js";
 import Footer from "../components/Footer.js";
 
+import LoginPage from "./LoginPage.js";
+
 const ProfilePage = () => {
   const user = User.getUserFromLocalStorage();
+
+  if (user === null) {
+    history.pushState(null, "", `${BASE_URL}/login`);
+    return LoginPage();
+  }
+
   return `
     <div id="root">
       <div class="bg-gray-100 min-h-screen flex justify-center">
