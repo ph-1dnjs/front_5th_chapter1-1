@@ -1,6 +1,6 @@
 {
   "name": "front-5th-chapter1-1",
-  "private": true,
+  "private": false,
   "version": "0.0.0",
   "type": "module",
   "homepage": "https://ph-1dnjs.github.io/front_5th_chapter1-1/",
@@ -20,6 +20,7 @@
     "test:e2e:report": "npx playwright show-report",
     "test:generate": "playwright codegen localhost:5173",
     "prepare": "husky",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "lint-staged": {
