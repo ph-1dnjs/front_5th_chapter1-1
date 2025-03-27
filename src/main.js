@@ -1,12 +1,11 @@
 import User from "./user.js";
 
+import { BASE_URL } from "./constants/constant.js";
+
 import HomePage from "./pages/HomePage.js";
 import ProfilePage from "./pages/ProfilePage.js";
 import LoginPage from "./pages/LoginPage.js";
 import NotFountPage from "./pages/NotFountPage.js";
-
-const baseUrl =
-  process.env.NODE_ENV === "production" ? "/front_5th_chapter1-1" : "";
 
 const Router = (function () {
   const routes = {};
@@ -18,27 +17,12 @@ const Router = (function () {
   function handler(path) {
     const handler = routes[path] || routes["/404"];
     const targetPath = routes[path] ? path : "/404";
-    history.pushState(null, "", `${baseUrl}${targetPath}`);
+    history.pushState(null, "", `${BASE_URL}${targetPath}`);
     handler();
   }
 
   function navigate(path) {
-    path = path.replace(baseUrl, "");
-
-    if (!User.isLoggedIn() && path === "/profile") {
-      return navigate("/login");
-    }
-    if (User.isLoggedIn() && path === "/login") {
-      return navigate("/");
-    }
-
-    handler(path);
-  }
-
-  function hashRouter() {
-    let path =
-      window.location.hash.replace("#", "") || window.location.pathname;
-    path = path.replace(baseUrl, "");
+    path = path.replace(BASE_URL, "");
 
     if (!User.isLoggedIn() && path === "/profile") {
       path = "/login";
@@ -51,19 +35,16 @@ const Router = (function () {
   }
 
   function init() {
-    window.addEventListener("hashchange", hashRouter);
+    window.addEventListener("hashchange", () => {
+      navigate(location.pathname);
+    });
 
-    window.addEventListener("load", hashRouter);
+    window.addEventListener("load", () => {
+      navigate(location.pathname);
+    });
 
     window.addEventListener("popstate", () => {
-      const path = location.pathname.replace(baseUrl, "");
-
-      if (path === "/login" && User.isLoggedIn()) {
-        history.go(1);
-        return;
-      }
-
-      navigate(path);
+      navigate(location.pathname);
     });
 
     window.addEventListener("click", function (e) {
@@ -75,12 +56,9 @@ const Router = (function () {
 
         if (e.target.id === "logout") {
           User.removeUserFromLocalStorage();
-          routes["/login"]();
-          return;
         }
 
-        const handler = routes[href] || routes["/404"];
-        handler();
+        navigate(href);
       }
     });
 
@@ -101,13 +79,10 @@ const Router = (function () {
         alert("프로필이 업데이트되었습니다.");
       }
     });
-
-    navigate(location.pathname);
   }
 
   return {
     addRoute,
-    navigate,
     init,
   };
 })();

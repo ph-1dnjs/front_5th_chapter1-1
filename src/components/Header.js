@@ -1,4 +1,5 @@
 import User from "../user.js";
+import { BASE_URL } from "../constants/constant.js";
 
 const Header = () => {
   const isLogin = User.isLoggedIn();
@@ -6,9 +7,13 @@ const Header = () => {
     ? `<li><a id="logout" href="/login" class="text-gray-600">로그아웃</a></li>`
     : `<li><a href="/login" class="text-gray-600">로그인</a></li>`;
 
-  const pathname = location.hash.replace("#", "") || "/";
+  const pathname =
+    location.hash.replace("#", "") || location.pathname.replace(BASE_URL, "");
+
   const isActive = (currentPath, targetPath) => {
-    return currentPath === targetPath ? "text-blue-600" : "text-gray-600";
+    return currentPath === targetPath
+      ? "text-blue-600 font-bold"
+      : "text-gray-600";
   };
 
   return `
