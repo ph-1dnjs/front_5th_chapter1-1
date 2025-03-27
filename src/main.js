@@ -261,7 +261,19 @@ const Router = (function () {
     routes[path] = handler;
   }
 
-  function navigator() {
+  function navigate(path) {
+    if (!User.isLoggedIn() && path === "/profile") {
+      return navigate("/login");
+    }
+    if (User.isLoggedIn() && path === "/login") {
+      return navigate("/");
+    }
+
+    const handler = routes[path] || routes["/404"];
+    handler();
+  }
+
+  function hashRouter() {
     let path =
       window.location.hash.replace("#", "") || window.location.pathname;
 
@@ -277,20 +289,19 @@ const Router = (function () {
   }
 
   function init() {
-    window.addEventListener("hashchange", navigator);
+    window.addEventListener("hashchange", hashRouter);
 
-    window.addEventListener("load", navigator);
+    window.addEventListener("load", hashRouter);
 
     window.addEventListener("popstate", () => {
-      const path = location.hash.replace("#", "");
+      const path = location.pathname;
 
       if (path === "/login" && User.isLoggedIn()) {
         history.go(1);
         return;
       }
 
-      const handler = routes[path] || routes["/404"];
-      handler();
+      navigate(path);
     });
 
     window.addEventListener("click", function (e) {
@@ -329,12 +340,12 @@ const Router = (function () {
       }
     });
 
-    const handler = routes[location.pathname] || routes["/404"];
-    handler();
+    navigate(location.pathname);
   }
 
   return {
     addRoute,
+    navigate,
     init,
   };
 })();
