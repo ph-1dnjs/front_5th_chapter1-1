@@ -1,5 +1,7 @@
 import User from "./user.js";
 
+const baseUrl = "/front_5th_chapter1-1/";
+
 const Header = () => {
   const isLogin = User.isLoggedIn();
   const sign = isLogin
@@ -262,6 +264,8 @@ const Router = (function () {
   }
 
   function navigate(path) {
+    path = path.replace(baseUrl, "/");
+
     if (!User.isLoggedIn() && path === "/profile") {
       return navigate("/login");
     }
@@ -276,6 +280,7 @@ const Router = (function () {
   function hashRouter() {
     let path =
       window.location.hash.replace("#", "") || window.location.pathname;
+    path = path.replace(baseUrl, "/");
 
     if (!User.isLoggedIn() && path === "/profile") {
       path = "/login";
@@ -294,7 +299,7 @@ const Router = (function () {
     window.addEventListener("load", hashRouter);
 
     window.addEventListener("popstate", () => {
-      const path = location.pathname;
+      const path = location.pathname.replace(baseUrl, "/");
 
       if (path === "/login" && User.isLoggedIn()) {
         history.go(1);
