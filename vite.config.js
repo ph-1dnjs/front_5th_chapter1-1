@@ -1,7 +1,9 @@
 import { defineConfig } from "vitest/config";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 export default defineConfig({
-  base: "/front_5th_chapter1-1/",
+  base: isProduction ? "/front_5th_chapter1-1/" : "/",
   test: {
     globals: true,
     environment: "jsdom",
