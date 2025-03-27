@@ -1,31 +1,31 @@
-(function(){const n=document.createElement("link").relList;if(n&&n.supports&&n.supports("modulepreload"))return;for(const o of document.querySelectorAll('link[rel="modulepreload"]'))l(o);new MutationObserver(o=>{for(const t of o)if(t.type==="childList")for(const s of t.addedNodes)s.tagName==="LINK"&&s.rel==="modulepreload"&&l(s)}).observe(document,{childList:!0,subtree:!0});function r(o){const t={};return o.integrity&&(t.integrity=o.integrity),o.referrerPolicy&&(t.referrerPolicy=o.referrerPolicy),o.crossOrigin==="use-credentials"?t.credentials="include":o.crossOrigin==="anonymous"?t.credentials="omit":t.credentials="same-origin",t}function l(o){if(o.ep)return;o.ep=!0;const t=r(o);fetch(o.href,t)}})();const u="user",b=e=>{localStorage.setItem(u,JSON.stringify(e))},m=()=>{const e=localStorage.getItem(u);return e?JSON.parse(e):null},h=()=>{localStorage.removeItem(u)},x=(e,n="",r="")=>{const l={username:e,email:n,bio:r};return b(l),l},y=e=>{const n=m();if(!n)return null;const r={...n,...e};return b(r),r},w=()=>!!m(),i={createUser:x,updateUser:y,getUserFromLocalStorage:m,removeUserFromLocalStorage:h,isLoggedIn:w},d="/front_5th_chapter1-1",f=()=>{const e=i.isLoggedIn(),n=e?'<li><a id="logout" href="/login" class="text-gray-600">로그아웃</a></li>':'<li><a href="/login" class="text-gray-600">로그인</a></li>',r=location.hash.replace("#","")||location.pathname.replace(d,""),l=(o,t)=>o===t?"text-blue-600 font-bold":"text-gray-600";return`
+(function(){const l=document.createElement("link").relList;if(l&&l.supports&&l.supports("modulepreload"))return;for(const e of document.querySelectorAll('link[rel="modulepreload"]'))r(e);new MutationObserver(e=>{for(const s of e)if(s.type==="childList")for(const a of s.addedNodes)a.tagName==="LINK"&&a.rel==="modulepreload"&&r(a)}).observe(document,{childList:!0,subtree:!0});function o(e){const s={};return e.integrity&&(s.integrity=e.integrity),e.referrerPolicy&&(s.referrerPolicy=e.referrerPolicy),e.crossOrigin==="use-credentials"?s.credentials="include":e.crossOrigin==="anonymous"?s.credentials="omit":s.credentials="same-origin",s}function r(e){if(e.ep)return;e.ep=!0;const s=o(e);fetch(e.href,s)}})();const i="user",c=t=>{localStorage.setItem(i,JSON.stringify(t))},n=()=>{const t=localStorage.getItem(i);return t?JSON.parse(t):null},m=()=>{localStorage.removeItem(i)},f=(t,l="",o="")=>{const r={username:t,email:l,bio:o};return c(r),r},g=t=>{const l=n();if(!l)return null;const o={...l,...t};return c(o),o},v=()=>!!n(),d={createUser:f,updateUser:g,getUserFromLocalStorage:n,removeUserFromLocalStorage:m,isLoggedIn:v},u="/front_5th_chapter1-1",b=()=>{const t=d.isLoggedIn(),l=t?'<li><a id="logout" href="/login" class="text-gray-600">로그아웃</a></li>':'<li><a href="/login" class="text-gray-600">로그인</a></li>',o=location.hash.replace("#","")||location.pathname.replace(u,""),r=(e,s)=>e===s?"text-blue-600 font-bold":"text-gray-600";return`
       <header class="bg-blue-600 text-white p-4 sticky top-0">
         <h1 class="text-2xl font-bold">항해플러스</h1>
       </header>
      
       <nav class="bg-white shadow-md p-2 sticky top-14">
         <ul class="flex justify-around">
-          <li><a href="/" class="${l(r,"/")}">홈</a></li>
-         ${e?`<li><a href="/profile" class="${l(r,"/profile")}">프로필</a></li>`:""}
-          ${n}
+          <li><a href="/" class="${r(o,"/")}">홈</a></li>
+         ${t?`<li><a href="/profile" class="${r(o,"/profile")}">프로필</a></li>`:""}
+          ${l}
         </ul>
       </nav>`},p=()=>`
   <footer class="bg-gray-200 p-4 text-center">
     <p>&copy; 2024 항해플러스. All rights reserved.</p>
   </footer>
-`;function L(){return`
+`;function x(){return`
 <div class="mb-4 bg-white rounded-lg shadow p-4">
   <textarea class="w-full p-2 border rounded" placeholder="무슨 생각을 하고 계신가요?"></textarea>
   <button class="mt-2 bg-blue-600 text-white px-4 py-2 rounded">게시</button>
 </div>
-`}const S=()=>`
+`}const y=()=>`
   <div id="root">
     <div class="bg-gray-100 min-h-screen flex justify-center">
       <div class="max-w-md w-full">
-        ${f()}
+        ${b()}
   
         <main class="p-4">
-          ${i.isLoggedIn()?L():""}
+          ${d.isLoggedIn()?x():""}
   
           <div class="space-y-4">
   
@@ -115,7 +115,7 @@
       </div>
     </div>
   </div>
-`,g=()=>`
+`,h=()=>`
   <div id="root">
     <main class="bg-gray-100 flex items-center justify-center min-h-screen">
       <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
@@ -139,11 +139,11 @@
       </div>
     </main>
   </div>
-`,$=()=>{const e=i.getUserFromLocalStorage();return e===null?(history.pushState(null,"",`${d}/login`),g()):`
+`,w=()=>{const t=d.getUserFromLocalStorage();return t===null?(history.pushState(null,"",`${u}/login`),h()):`
     <div id="root">
       <div class="bg-gray-100 min-h-screen flex justify-center">
         <div class="max-w-md w-full">
-          ${f()}
+          ${b()}
 
           <main class="p-4">
             <div class="bg-white p-8 rounded-lg shadow-md">
@@ -161,7 +161,7 @@
                     type="text"
                     id="username"
                     name="username"
-                    value="${e.username}"
+                    value="${t.username}"
                     class="w-full p-2 border rounded"
                   />
                 </div>
@@ -175,7 +175,7 @@
                     type="email"
                     id="email"
                     name="email"
-                    value="${e.email}"
+                    value="${t.email}"
                     class="w-full p-2 border rounded"
                   />
                 </div>
@@ -190,7 +190,7 @@
                     name="bio"
                     rows="4"
                     class="w-full p-2 border rounded"
-                  >${e.bio} 자기소개입니다.</textarea
+                  >${t.bio} 자기소개입니다.</textarea
                   >
                 </div>
                 <button
@@ -207,7 +207,7 @@
         </div>
       </div>
     </div>
-  `},I=()=>`
+  `},L=()=>`
 <div id="root">
   <main class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-md w-full text-center" style="max-width: 480px">
@@ -223,4 +223,4 @@
     </div>
   </main>
 </div>
-`,a=function(){const e={};function n(t,s){e[t]=s}function r(t){const s=e[t]||e["/404"],c=e[t]?t:"/404";history.pushState(null,"",`${d}${c}`),s()}function l(t){t=t.replace(d,""),!i.isLoggedIn()&&t==="/profile"&&(t="/login"),i.isLoggedIn()&&t==="/login"&&(t="/"),r(t)}function o(){window.addEventListener("hashchange",()=>{l(location.pathname)}),window.addEventListener("load",()=>{l(location.pathname)}),window.addEventListener("popstate",()=>{l(location.pathname)}),window.addEventListener("click",function(t){const s=t.target.getAttribute("href");s&&(t.preventDefault(),history.pushState(null,"",`#${s}`),t.target.id==="logout"&&i.removeUserFromLocalStorage(),l(s))}),window.addEventListener("submit",function(t){if(t.preventDefault(),t.target.id==="login-form"){const s=document.getElementById("username").value;i.createUser(s),history.pushState(null,"","#/profile"),e["/profile"]()}else if(t.target.id==="profile-form"){const s=document.getElementById("username").value,c=document.getElementById("email").value,v=document.getElementById("bio").value;i.updateUser({username:s,email:c,bio:v}),alert("프로필이 업데이트되었습니다.")}})}return{addRoute:n,init:o}}();a.addRoute("/",()=>{document.body.innerHTML=S()});a.addRoute("/profile",()=>{document.body.innerHTML=$()});a.addRoute("/login",()=>{document.body.innerHTML=g()});a.addRoute("/404",()=>{document.body.innerHTML=I()});a.init();
+`;export{u as B,y as H,h as L,L as N,w as P,d as U};
